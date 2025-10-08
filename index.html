@@ -100,6 +100,22 @@
       width: 100%;
       max-width: 100%;
     }
+    .qr-wrapper { position: relative; }
+    .camera-check {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #28a745; /* green */
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
     #qr-reader video,
     #qr-reader canvas,
     #qr-reader img,
@@ -243,7 +259,10 @@
       <div id="scan" class="col-md-6">
         <div class="card p-4 shadow-sm">
           <h4 class="text-primary mb-3">Scan Student QR</h4>
-          <div id="qr-reader" class="mb-3"></div>
+          <div class="qr-wrapper mb-3">
+            <div id="qr-reader"></div>
+            <div id="cameraCheck" class="camera-check d-none">✓</div>
+          </div>
           
           <!-- NEW: Choose File Option -->
           <div class="mb-3 text-center">
@@ -307,6 +326,7 @@
 
     // Initialize camera scanner
     const resultDiv = document.getElementById("qrResult");
+    const cameraCheck = document.getElementById('cameraCheck');
     function onScanSuccess(decodedText) {
       try {
         const info = JSON.parse(decodedText);
@@ -321,6 +341,11 @@
           Contact: ${info.contact}
         `;
         resultDiv.classList.remove("d-none");
+        // Show green camera check ONLY for camera scans
+        if (!window._lastScanWasFile) {
+          cameraCheck.classList.remove('d-none');
+          setTimeout(() => cameraCheck.classList.add('d-none'), 1500);
+        }
 
         // ✅ Auto fade out after 10 seconds
         setTimeout(() => {
@@ -389,6 +414,8 @@
     function scanFromFile(event) {
       const file = event.target.files[0];
       if (!file) return;
+      // mark that this scan is from file so we don't show camera check
+      window._lastScanWasFile = true;
 
       const reader = new FileReader();
       reader.onload = function() {
@@ -404,6 +431,8 @@
 
           if (code) {
             onScanSuccess(code.data);
+            // reset flag shortly after processing file
+            setTimeout(() => { window._lastScanWasFile = false; }, 500);
           } else {
             resultDiv.textContent = "No QR code detected in image.";
             resultDiv.classList.remove("d-none");
