@@ -147,27 +147,13 @@
     main {
       flex: 1 0 auto;
     }
-    header.site-header, footer.site-footer {
+    footer.site-footer {
       background: var(--brand-red); /* unified red */
       color: #fff;
       margin: 0;           /* no gaps */
       border: 0;
       box-shadow: none;
-    }
-    header.site-header { height: 56px; }
-    footer.site-footer { padding: 12px 0; }
-    header.site-header .brand {
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    header.site-header a {
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      margin: 0;
-      padding: 0;
-    }
-    header.site-header a:hover {
-      color: #fff;
+      padding: 12px 0;
     }
     footer.site-footer a {
       color: #adb5bd;
@@ -177,10 +163,8 @@
       color: #fff;
     }
 
-    /* Remove container horizontal padding inside header/footer */
-    header.site-header .container,
+    /* Remove container horizontal padding inside footer */
     footer.site-footer .container,
-    header.site-header .container-fluid,
     footer.site-footer .container-fluid {
       padding-left: 0;
       padding-right: 0;
@@ -222,8 +206,6 @@
   </style>
 </head>
 <body>
-  <header class="site-header"></header>
-
   <main>
   <div class="container app-container">
     <h2 class="text-center fw-bold mb-4 text-primary">Student Info QR Generator &amp; Scanner</h2>
@@ -399,7 +381,7 @@
 
   <footer class="site-footer">
     <div class="container-fluid text-center">
-      <small>&copy; I LOVE YOU LANGGING | JANILYN</small>
+      <small>&copy; I LOVE YOU LANGGING</small>
     </div>
   </footer>
 
@@ -578,4 +560,3 @@
   </script>
 </body>
 </html>
-
