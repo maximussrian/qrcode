@@ -12,6 +12,13 @@
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- HTML5 QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -168,6 +175,70 @@
     footer.site-footer .container-fluid {
       padding-left: 0;
       padding-right: 0;
+    }
+
+    /* SweetAlert2 Custom Styling */
+    .swal2-popup {
+      font-family: 'Poppins', sans-serif !important;
+      border-radius: 16px !important;
+    }
+    
+    .swal2-title {
+      color: var(--brand-red) !important;
+      font-weight: 600 !important;
+    }
+    
+    .swal2-confirm {
+      background-color: var(--brand-red) !important;
+      border-color: var(--brand-red) !important;
+    }
+    
+    .swal2-confirm:hover {
+      background-color: #8E1414 !important;
+      border-color: #8E1414 !important;
+    }
+    
+    /* Mobile SweetAlert2 Enhancements */
+    @media (max-width: 768px) {
+      .swal2-popup {
+        margin: 10px !important;
+        border-radius: 12px !important;
+        max-width: calc(100vw - 20px) !important;
+        width: calc(100vw - 20px) !important;
+      }
+      
+      .swal2-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 15px !important;
+      }
+      
+      .swal2-html-container {
+        font-size: 0.9rem !important;
+        margin: 10px 0 !important;
+      }
+      
+      .swal2-confirm {
+        font-size: 0.9rem !important;
+        padding: 8px 20px !important;
+        border-radius: 8px !important;
+      }
+    }
+    
+    /* Extra small mobile devices */
+    @media (max-width: 480px) {
+      .swal2-popup {
+        margin: 5px !important;
+        max-width: calc(100vw - 10px) !important;
+        width: calc(100vw - 10px) !important;
+      }
+      
+      .swal2-title {
+        font-size: 1rem !important;
+      }
+      
+      .swal2-html-container {
+        font-size: 0.85rem !important;
+      }
     }
 
     /* Mobile responsiveness */
@@ -372,7 +443,6 @@
           </div>
 
           <canvas id="qrCanvas"></canvas>
-          <div id="qrResult" class="alert alert-brand d-none"></div>
         </div>
       </div>
     </div>
@@ -381,9 +451,10 @@
 
   <footer class="site-footer">
     <div class="container-fluid text-center">
-      <small>&copy; I LOVE YOU LANGGING | JANILYN</small>
+      <small>&copy; I LOVE YOU LANGGING  | JANILYN</small>
     </div>
   </footer>
+
 
   <script>
     // Generate and download QR
@@ -429,49 +500,69 @@
     }
 
     // Initialize camera scanner
-    const resultDiv = document.getElementById("qrResult");
     const cameraModal = document.getElementById('cameraModal');
+    
     function onScanSuccess(decodedText) {
       try {
         const info = JSON.parse(decodedText);
-        resultDiv.innerHTML = `
-          <strong>Scanned Info:</strong><br>
-          Student ID: ${info.studentId}<br>
-          Full Name: ${info.fullName}<br>
-          Email: ${info.email}<br>
-          Age: ${info.age}<br>
-          Birthdate: ${info.birthdate}<br>
-          Address: ${info.address}<br>
-          Contact: ${info.contact}<br>
-          Gender: ${info.gender}<br>
-          Nationality: ${info.nationality}<br>
-          Birthplace: ${info.birthplace}
+        
+        // Create HTML content for SweetAlert with responsive design
+        const isMobile = window.innerWidth <= 768;
+        const studentInfoHtml = `
+          <div style="text-align: left; font-family: 'Poppins', sans-serif;">
+            <div style="display: ${isMobile ? 'block' : 'grid'}; ${isMobile ? '' : 'grid-template-columns: 1fr 1fr;'} gap: ${isMobile ? '10px' : '15px'}; margin-top: ${isMobile ? '15px' : '20px'};">
+              <div style="${isMobile ? 'margin-bottom: 15px;' : ''}">
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Student ID:</strong>${info.studentId}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Full Name:</strong>${info.fullName}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Email:</strong>${info.email}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Age:</strong>${info.age}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Birthdate:</strong>${info.birthdate}</p>
+              </div>
+              <div>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Gender:</strong>${info.gender}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Nationality:</strong>${info.nationality}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Birthplace:</strong>${info.birthplace}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Contact:</strong>${info.contact}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Address:</strong>${info.address}</p>
+              </div>
+            </div>
+          </div>
         `;
-        resultDiv.classList.remove("d-none");
+        
+        // Show SweetAlert2 with enhanced mobile responsiveness
+        Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #28a745;"></i> QR Scan Successful!',
+          html: studentInfoHtml,
+          icon: 'success',
+          confirmButtonText: 'Close',
+          confirmButtonColor: 'var(--brand-red)',
+          width: isMobile ? '95%' : '600px',
+          padding: isMobile ? '1rem' : '1.5rem',
+          showConfirmButton: true,
+          allowOutsideClick: true,
+          allowEscapeKey: true,
+          backdrop: true,
+          customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            htmlContainer: 'swal2-html-container-custom'
+          }
+        });
+        
         // Show green modal overlay ONLY for camera scans
         if (!window._lastScanWasFile) {
           cameraModal.classList.remove('d-none');
           setTimeout(() => cameraModal.classList.add('d-none'), 1500);
         }
-
-        // ✅ Auto fade out after 10 seconds
-        setTimeout(() => {
-          resultDiv.classList.add("fade-out");
-          setTimeout(() => {
-            resultDiv.classList.add("d-none");
-            resultDiv.classList.remove("fade-out");
-          }, 1000);
-        }, 10000);
       } catch {
-        resultDiv.textContent = "Invalid QR data format.";
-        resultDiv.classList.remove("d-none");
-        setTimeout(() => {
-          resultDiv.classList.add("fade-out");
-          setTimeout(() => {
-            resultDiv.classList.add("d-none");
-            resultDiv.classList.remove("fade-out");
-          }, 1000);
-        }, 10000);
+        // Show error SweetAlert
+        Swal.fire({
+          title: '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Invalid QR Code',
+          text: 'Please scan a valid student QR code.',
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          confirmButtonColor: 'var(--brand-red)'
+        });
       }
     }
 
@@ -541,16 +632,14 @@
             // reset flag shortly after processing file
             setTimeout(() => { window._lastScanWasFile = false; }, 500);
           } else {
-            resultDiv.textContent = "No QR code detected in image.";
-            resultDiv.classList.remove("d-none");
-
-            setTimeout(() => {
-              resultDiv.classList.add("fade-out");
-              setTimeout(() => {
-                resultDiv.classList.add("d-none");
-                resultDiv.classList.remove("fade-out");
-              }, 1000);
-            }, 10000);
+            // Show warning SweetAlert
+            Swal.fire({
+              title: '<i class="fas fa-search" style="color: #ffc107;"></i> No QR Code Found',
+              text: 'No QR code detected in the uploaded image. Please try with a different image or ensure the QR code is clearly visible.',
+              icon: 'warning',
+              confirmButtonText: 'Try Again',
+              confirmButtonColor: 'var(--brand-red)'
+            });
           }
         };
         img.src = reader.result;
@@ -560,4 +649,3 @@
   </script>
 </body>
 </html>
-
