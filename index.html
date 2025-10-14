@@ -5,149 +5,192 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Info QR Generator & Scanner</title>
 
+  <!-- Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            // Define the brand red
-            'brand-red': '#B71C1C',
-          },
-          fontFamily: {
-            // Set Poppins as the primary font
-            sans: ['Poppins', 'system-ui', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <!-- HTML5 QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
   <style>
-    /* Global Styles & Layout (Sticky Footer) */
+    :root { --brand-red: #B71C1C; }
     body {
-      background-color: #EEEEEE; /* bg-gray-100 equivalent */
-      min-height: 100vh;
+      background: #EEEEEE;
+      padding: 0; /* remove outer gaps so header/footer touch edges */
+      margin: 0;  /* ensure no default body margin on any device */
       display: flex;
+      min-height: 100vh;
       flex-direction: column;
+      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     }
-    main {
-      flex-grow: 1; /* flex: 1 0 auto */
-    }
-
-    /* Form Control base styling (replaces .form-control) */
-    .form-input-control {
-      /* Replaces Bootstrap's form-control: block w-full px-3 py-2 border border-gray-300 rounded-md */
-      @apply block w-full px-3 py-2 border border-gray-300 rounded-lg text-base;
-      /* Custom focus ring to match brand red */
-      transition: all 150ms ease-in-out;
-    }
-    .form-input-control:focus {
-        /* Replaces focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red */
-        --tw-ring-color: #B71C1C;
-        @apply ring-2 ring-opacity-50 border-brand-red shadow-lg shadow-red-200/50;
-        outline: none;
+    /* App content container centering */
+    .app-container {
+      max-width: 1140px;
+      margin: 24px auto;
+      padding-left: 16px;
+      padding-right: 16px;
     }
 
-    /* Custom Button Styles (Replaces .btn-primary) */
-    .btn-brand-primary {
-        @apply bg-brand-red text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 border border-brand-red;
+    /* Match primary color to header/footer red */
+    .text-primary { color: var(--brand-red) !important; }
+    .btn-primary {
+      background-color: var(--brand-red);
+      border-color: var(--brand-red);
+      color: #fff;
     }
-    .btn-brand-primary:hover,
-    .btn-brand-primary:focus,
-    .btn-brand-primary:active,
-    .btn-brand-primary:focus-visible {
-        /* Inverted look on hover/focus */
-        @apply bg-white text-brand-red border-brand-red shadow-lg shadow-red-200/50;
-        outline: none;
+    /* Invert on hover/focus/active: white background, red text/border */
+    .btn-primary:hover,
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:focus-visible,
+    .btn-primary:active:focus,
+    .show > .btn-primary.dropdown-toggle {
+      background-color: #ffffff;
+      border-color: var(--brand-red);
+      color: var(--brand-red);
     }
-    .btn-brand-primary:disabled {
-        @apply bg-brand-red text-white border-brand-red opacity-75;
+    /* Red focus ring instead of blue */
+    .btn-primary:focus,
+    .btn-primary:focus-visible,
+    .btn-primary:active:focus {
+      box-shadow: 0 0 0 0.2rem rgba(183, 28, 28, 0.25);
+      outline: none;
+    }
+    /* Keep disabled state consistent */
+    .btn-primary:disabled,
+    .btn-primary.disabled {
+      background-color: var(--brand-red);
+      border-color: var(--brand-red);
+      color: #fff;
     }
 
-    /* Custom Inverted Button Styles (Replaces .btn-invert-primary) */
-    .btn-brand-invert {
-        @apply bg-white text-brand-red font-medium py-2 px-4 rounded-lg transition-colors duration-200 border border-brand-red;
+    /* Inverted white/red button style */
+    .btn-invert-primary {
+      background-color: #ffffff;
+      color: var(--brand-red);
+      border: 1px solid var(--brand-red);
     }
-    .btn-brand-invert:hover,
-    .btn-brand-invert:focus,
-    .btn-brand-invert:active {
-        /* Inverted look on hover/focus */
-        @apply bg-brand-red text-white border-brand-red shadow-lg shadow-red-200/50;
-        outline: none;
+    .btn-invert-primary:hover,
+    .btn-invert-primary:focus,
+    .btn-invert-primary:active {
+      background-color: var(--brand-red);
+      color: #ffffff;
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 0.2rem rgba(183, 28, 28, 0.25);
     }
 
-    /* Custom Alert (Replaces .alert-brand) */
+    /* Brand alert (red background, white text) for scan output */
     .alert-brand {
-      @apply bg-brand-red text-white border border-brand-red p-3 rounded-lg;
+      background-color: var(--brand-red);
+      color: #ffffff;
+      border: 1px solid var(--brand-red);
     }
-
-    /* Card Styling */
     .card {
-      @apply rounded-2xl border border-brand-red shadow-xl overflow-hidden;
+      border-radius: 16px;
+      border: 1px solid var(--brand-red);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
     }
-    
-    /* QR Reader Overrides */
-    #qr-reader, #qrImage {
-      @apply max-w-full;
+    #qr-reader {
+      width: 100%;
+      max-width: 100%;
     }
+    .qr-wrapper { position: relative; }
+    /* Modal-like overlay inside camera on successful camera scan */
+    .camera-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(40, 167, 69, 0.9); /* green overlay */
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 12px;
+    }
+    .camera-modal .icon {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin: 0 auto 10px;
+      font-weight: 700;
+    }
+    .camera-modal .label { font-weight: 600; letter-spacing: 0.5px; }
     #qr-reader video,
     #qr-reader canvas,
     #qr-reader img,
     #qr-reader div {
       max-width: 100% !important;
     }
+    #qrImage {
+      max-width: 100%;
+    }
     canvas {
       display: none;
     }
-    .qr-wrapper { position: relative; }
-    /* Modal-like overlay inside camera on successful camera scan */
-    .camera-modal {
-      @apply absolute inset-0 bg-green-500 bg-opacity-90 text-white flex items-center justify-center text-center rounded-xl;
+    /* Fade-out animation */
+    .fade-out {
+      opacity: 0;
+      transition: opacity 1s ease-out;
     }
-    .camera-modal .icon {
-      /* Fixed size circle icon */
-      width: 92px;
-      height: 92px;
-      @apply rounded-full border-4 border-white flex items-center justify-center text-5xl font-bold mx-auto mb-3;
+    /* Layout helpers */
+    main {
+      flex: 1 0 auto;
     }
-    .camera-modal .label { @apply font-semibold tracking-wider; }
-
-    /* Footer Styling */
     footer.site-footer {
-      @apply bg-brand-red text-white p-3;
+      background: var(--brand-red); /* unified red */
+      color: #fff;
+      margin: 0;           /* no gaps */
+      border: 0;
+      box-shadow: none;
+      padding: 12px 0;
     }
     footer.site-footer a {
-      @apply text-gray-400 no-underline;
+      color: #adb5bd;
+      text-decoration: none;
     }
     footer.site-footer a:hover {
-      @apply text-white;
+      color: #fff;
+    }
+
+    /* Remove container horizontal padding inside footer */
+    footer.site-footer .container,
+    footer.site-footer .container-fluid {
+      padding-left: 0;
+      padding-right: 0;
     }
 
     /* SweetAlert2 Custom Styling */
     .swal2-popup {
       font-family: 'Poppins', sans-serif !important;
-      @apply rounded-2xl !important;
+      border-radius: 16px !important;
     }
     
     .swal2-title {
-      @apply text-brand-red font-semibold !important;
+      color: var(--brand-red) !important;
+      font-weight: 600 !important;
     }
     
     .swal2-confirm {
-      @apply bg-brand-red border-brand-red !important;
+      background-color: var(--brand-red) !important;
+      border-color: var(--brand-red) !important;
     }
     
     .swal2-confirm:hover {
@@ -155,7 +198,7 @@
       border-color: #8E1414 !important;
     }
     
-    /* Mobile SweetAlert2 Enhancements (Tailwind breakpoints used where possible, absolute values for specific overrides) */
+    /* Mobile SweetAlert2 Enhancements */
     @media (max-width: 768px) {
       .swal2-popup {
         margin: 10px !important;
@@ -180,18 +223,53 @@
         border-radius: 8px !important;
       }
     }
+    
+    /* Extra small mobile devices */
+    @media (max-width: 480px) {
+      .swal2-popup {
+        margin: 5px !important;
+        max-width: calc(100vw - 10px) !important;
+        width: calc(100vw - 10px) !important;
+      }
+      
+      .swal2-title {
+        font-size: 1rem !important;
+      }
+      
+      .swal2-html-container {
+        font-size: 0.85rem !important;
+      }
+    }
 
-    /* Brand scrollbar styling (retained as CSS requires vendor prefixes) */
+    /* Mobile responsiveness */
+    @media (max-width: 576px) {
+      body { padding: 0; margin: 0; }
+      h2 { font-size: 1.25rem; }
+      .card { border-radius: 14px; }
+      .card.p-4 { padding: 1rem !important; }
+      #qr-reader { min-height: 240px; }
+      label { font-size: 0.9rem; }
+      input, button { font-size: 1rem; }
+      /* Stack form columns on mobile */
+      .col-md-6 { margin-bottom: 0.5rem; }
+    }
+    
+    /* Tablet responsiveness */
+    @media (max-width: 768px) {
+      .col-md-6 { margin-bottom: 0.75rem; }
+    }
+
+    /* Brand scrollbar styling */
     /* Firefox */
     html {
-      scrollbar-color: #B71C1C #e9ecef;
+      scrollbar-color: var(--brand-red) #e9ecef;
       scrollbar-width: thin;
     }
     /* WebKit (Chrome, Edge, Safari) */
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: #e9ecef; }
     ::-webkit-scrollbar-thumb {
-      background-color: #B71C1C;
+      background-color: var(--brand-red);
       border-radius: 8px;
       border: 2px solid #e9ecef;
     }
@@ -199,500 +277,375 @@
   </style>
 </head>
 <body>
-  <main class="flex-grow">
-    <div class="container mx-auto max-w-6xl px-4 lg:px-6 py-6">
-      <h2 class="text-center font-bold text-3xl mb-8 text-brand-red">Student Info QR Generator &amp; Scanner</h2>
+  <main>
+  <div class="container app-container">
+    <h2 class="text-center fw-bold mb-4 text-primary">Student Info QR Generator &amp; Scanner</h2>
+    <div class="row">
       
-      <div class="flex flex-wrap -mx-4">
-        
-        <div id="generate" class="w-full md:w-1/2 px-4 mb-4">
-          <div class="card p-6 shadow-md">
-            <h4 class="text-brand-red text-xl font-semibold mb-4">Generate Student QR</h4>
-            <form id="qrForm">
-              <div class="flex flex-wrap -mx-2">
-                <div class="w-full md:w-1/2 px-2">
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Student ID</label>
-                    <input type="text" id="studentId" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
-                    <input type="text" id="fullName" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">EVSU Email</label>
-                    <input type="email" id="email" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Age</label>
-                    <input type="number" id="age" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Birthdate</label>
-                    <input type="date" id="birthdate" class="form-input-control" required>
-                  </div>
+      <!-- QR Generator -->
+      <div id="generate" class="col-md-6 mb-4">
+        <div class="card p-4 shadow-sm">
+          <h4 class="text-primary mb-3">Generate Student QR</h4>
+          <form id="qrForm">
+            <div class="row">
+              <!-- Left Column -->
+              <div class="col-md-6">
+                <div class="mb-2">
+                  <label>Student ID</label>
+                  <input type="text" id="studentId" class="form-control" required>
                 </div>
-                
-                <div class="w-full md:w-1/2 px-2">
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Gender</label>
-                    <select id="gender" class="form-input-control" required>
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Nationality</label>
-                    <input type="text" id="nationality" class="form-input-control" list="nationalityOptions" required>
-                    <datalist id="nationalityOptions">
-                      <option value="Afghan">
-                      <option value="Albanian">
-                      <option value="Algerian">
-                      <option value="American">
-                      <option value="Argentine">
-                      <option value="Armenian">
-                      <option value="Australian">
-                      <option value="Austrian">
-                      <option value="Bangladeshi">
-                      <option value="Belgian">
-                      <option value="Brazilian">
-                      <option value="British">
-                      <option value="Bulgarian">
-                      <option value="Cambodian">
-                      <option value="Canadian">
-                      <option value="Chilean">
-                      <option value="Chinese">
-                      <option value="Colombian">
-                      <option value="Croatian">
-                      <option value="Cuban">
-                      <option value="Czech">
-                      <option value="Danish">
-                      <option value="Dutch">
-                      <option value="Egyptian">
-                      <option value="Filipino">
-                      <option value="Finnish">
-                      <option value="French">
-                      <option value="German">
-                      <option value="Greek">
-                      <option value="Hungarian">
-                      <option value="Indian">
-                      <option value="Indonesian">
-                      <option value="Iranian">
-                      <option value="Iraqi">
-                      <option value="Irish">
-                      <option value="Israeli">
-                      <option value="Italian">
-                      <option value="Japanese">
-                      <option value="Jordanian">
-                      <option value="Korean">
-                      <option value="Kuwaiti">
-                      <option value="Lebanese">
-                      <option value="Malaysian">
-                      <option value="Mexican">
-                      <option value="Moroccan">
-                      <option value="Nepalese">
-                      <option value="Norwegian">
-                      <option value="Pakistani">
-                      <option value="Peruvian">
-                      <option value="Polish">
-                      <option value="Portuguese">
-                      <option value="Romanian">
-                      <option value="Russian">
-                      <option value="Saudi">
-                      <option value="Singaporean">
-                      <option value="South African">
-                      <option value="Spanish">
-                      <option value="Sri Lankan">
-                      <option value="Swedish">
-                      <option value="Swiss">
-                      <option value="Thai">
-                      <option value="Turkish">
-                      <option value="Ukrainian">
-                      <option value="Venezuelan">
-                      <option value="Vietnamese">
-                    </datalist>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Birthplace</label>
-                    <input type="text" id="birthplace" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Contact Number</label>
-                    <input type="text" id="contact" class="form-input-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">Address</label>
-                    <input type="text" id="address" class="form-input-control" required>
-                  </div>
-                  
+                <div class="mb-2">
+                  <label>Full Name</label>
+                  <input type="text" id="fullName" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                  <label>EVSU Email</label>
+                  <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                  <label>Age</label>
+                  <input type="number" id="age" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                  <label>Birthdate</label>
+                  <input type="date" id="birthdate" class="form-control" required>
                 </div>
               </div>
-              <div class="mt-6 text-center">
-                <button type="submit" class="btn-brand-primary text-lg w-full">
-                  <i class="fas fa-qrcode mr-2"></i> Generate QR Code
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div id="scan" class="w-full md:w-1/2 px-4">
-          <div class="card p-6 shadow-md">
-            <h4 class="text-brand-red text-xl font-semibold mb-4">Scan Student QR</h4>
-            
-            <div id="qr-reader" class="mx-auto"></div>
-            <canvas id="qrCanvas" class="hidden"></canvas>
-            
-            <div id="qr-reader-results" class="mt-4 hidden">
-              <div id="scan-output" class="alert-brand text-sm p-3 rounded-lg">Scan result will appear here.</div>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-2 mt-4">
-              <button id="startScanBtn" class="btn-brand-primary text-sm sm:w-1/2 flex items-center justify-center">
-                <i class="fas fa-camera mr-2"></i> Start Camera Scan
-              </button>
-              <button id="uploadScanBtn" class="btn-brand-invert text-sm sm:w-1/2 flex items-center justify-center">
-                <i class="fas fa-upload mr-2"></i> Upload Image
-              </button>
-              <input type="file" id="qrImageUpload" accept="image/*" class="hidden">
-            </div>
-
-            <div class="mt-4 text-center">
-                <p id="camera-status" class="text-sm text-gray-500 italic">Camera not started.</p>
-            </div>
-          </div>
-        </div>
-
-        <div id="output" class="w-full px-4 mt-4 hidden">
-          <div class="card p-6 shadow-md">
-            <h4 class="text-brand-red text-xl font-semibold mb-4">Generated QR Code</h4>
-            
-            <div class="flex justify-center mb-4">
-              <img id="qrImage" alt="Generated QR Code" class="max-w-xs border border-gray-300 p-2 rounded-lg">
-            </div>
-
-            <div id="studentInfoOutput" class="alert-brand mt-4 p-4 rounded-lg text-sm">
+              
+              <!-- Right Column -->
+              <div class="col-md-6">
+                <div class="mb-2">
+                  <label>Gender</label>
+                  <select id="gender" class="form-control" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
-
-            <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
-                <button id="downloadBtn" class="btn-brand-primary flex items-center justify-center">
-                  <i class="fas fa-download mr-2"></i> Download QR
-                </button>
-                <button id="clearBtn" class="btn-brand-invert flex items-center justify-center">
-                  <i class="fas fa-eraser mr-2"></i> Clear Form
-                </button>
+                <div class="mb-2">
+                  <label>Nationality</label>
+                  <input type="text" id="nationality" class="form-control" list="nationalityOptions" required>
+                  <datalist id="nationalityOptions">
+                    <option value="Afghan">
+                    <option value="Albanian">
+                    <option value="Algerian">
+                    <option value="American">
+                    <option value="Argentine">
+                    <option value="Armenian">
+                    <option value="Australian">
+                    <option value="Austrian">
+                    <option value="Bangladeshi">
+                    <option value="Belgian">
+                    <option value="Brazilian">
+                    <option value="British">
+                    <option value="Bulgarian">
+                    <option value="Cambodian">
+                    <option value="Canadian">
+                    <option value="Chilean">
+                    <option value="Chinese">
+                    <option value="Colombian">
+                    <option value="Croatian">
+                    <option value="Cuban">
+                    <option value="Czech">
+                    <option value="Danish">
+                    <option value="Dutch">
+                    <option value="Egyptian">
+                    <option value="Filipino">
+                    <option value="Finnish">
+                    <option value="French">
+                    <option value="German">
+                    <option value="Greek">
+                    <option value="Hungarian">
+                    <option value="Indian">
+                    <option value="Indonesian">
+                    <option value="Iranian">
+                    <option value="Iraqi">
+                    <option value="Irish">
+                    <option value="Israeli">
+                    <option value="Italian">
+                    <option value="Japanese">
+                    <option value="Jordanian">
+                    <option value="Korean">
+                    <option value="Kuwaiti">
+                    <option value="Lebanese">
+                    <option value="Malaysian">
+                    <option value="Mexican">
+                    <option value="Moroccan">
+                    <option value="Nepalese">
+                    <option value="Norwegian">
+                    <option value="Pakistani">
+                    <option value="Peruvian">
+                    <option value="Polish">
+                    <option value="Portuguese">
+                    <option value="Romanian">
+                    <option value="Russian">
+                    <option value="Saudi">
+                    <option value="Singaporean">
+                    <option value="South African">
+                    <option value="Spanish">
+                    <option value="Sri Lankan">
+                    <option value="Swedish">
+                    <option value="Swiss">
+                    <option value="Thai">
+                    <option value="Turkish">
+                    <option value="Ukrainian">
+                    <option value="Venezuelan">
+                    <option value="Vietnamese">
+                  </datalist>
+                </div>
+                <div class="mb-2">
+                  <label>Birthplace</label>
+                  <input type="text" id="birthplace" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                  <label>Contact Number</label>
+                  <input type="text" id="contact" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                  <label>Address</label>
+                  <input type="text" id="address" class="form-control" required>
+                </div>
+              </div>
             </div>
+            
+            <!-- Full Width Button -->
+            <div class="mb-3 mt-3">
+              <button type="button" class="btn btn-primary w-100" onclick="generateQR()">Generate QR Code</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-3">
+            <img id="qrImage" class="img-fluid rounded" alt="">
+            <a id="downloadQR" class="btn btn-invert-primary mt-2 d-none" download="student_qr.png">Download QR</a>
           </div>
         </div>
+      </div>
 
+      <!-- QR Scanner -->
+      <div id="scan" class="col-md-6">
+        <div class="card p-4 shadow-sm">
+          <h4 class="text-primary mb-3">Scan Student QR</h4>
+          <div class="qr-wrapper mb-3">
+            <div id="qr-reader"></div>
+            <div id="cameraModal" class="camera-modal d-none">
+              <div>
+                <div class="icon">✓</div>
+                <div class="label">Camera Scan Successful</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- NEW: Choose File Option -->
+          <div class="mb-3 text-center">
+            <label for="qrFile" class="form-label fw-bold">Or choose QR image from your device:</label>
+            <input type="file" id="qrFile" accept="image/*" class="form-control" onchange="scanFromFile(event)">
+          </div>
+
+          <canvas id="qrCanvas"></canvas>
+        </div>
       </div>
     </div>
+  </div>
   </main>
 
   <footer class="site-footer">
-    <div class="container mx-auto px-4 lg:px-6 text-center text-sm">
-      <p class="mb-0">&copy; <span id="currentYear"></span> Student Info QR Generator & Scanner. Created with <i class="fas fa-heart text-white"></i> by EVSU Student</p>
-      <p class="mb-0 mt-1"><a href="#" class="hover:text-white">Privacy Policy</a> | <a href="#" class="hover:text-white">Terms of Use</a></p>
+    <div class="container-fluid text-center">
+      <small>&copy; I LOVE YOU LANGGING  | JANILYN</small>
     </div>
   </footer>
 
+
   <script>
-    // JS Logic (Remains unchanged, but custom classes are used)
-    document.addEventListener('DOMContentLoaded', () => {
-        // Update the year
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    // Generate and download QR
+    function generateQR() {
+      const data = {
+        studentId: document.getElementById("studentId").value,
+        fullName: document.getElementById("fullName").value,
+        email: document.getElementById("email").value,
+        age: document.getElementById("age").value,
+        birthdate: document.getElementById("birthdate").value,
+        address: document.getElementById("address").value,
+        contact: document.getElementById("contact").value,
+        gender: document.getElementById("gender").value,
+        nationality: document.getElementById("nationality").value,
+        birthplace: document.getElementById("birthplace").value,
+      };
 
-        const qrForm = document.getElementById('qrForm');
-        const qrImage = document.getElementById('qrImage');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const outputDiv = document.getElementById('output');
-        const studentInfoOutput = document.getElementById('studentInfoOutput');
+      // Prevent empty submission
+      if (!data.studentId || !data.fullName || !data.email) {
+        alert("Please fill in all required fields!");
+        return;
+      }
+
+      const qrData = JSON.stringify(data);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+      const qrImage = document.getElementById("qrImage");
+      const downloadLink = document.getElementById("downloadQR");
+
+      qrImage.src = qrUrl;
+      qrImage.onload = () => {
+        fetch(qrUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = `${data.studentId}_qr.png`;
+            downloadLink.classList.remove("d-none");
+          });
+      };
+
+      // ✅ Clear form fields after generation
+      document.getElementById("qrForm").reset();
+    }
+
+    // Initialize camera scanner
+    const cameraModal = document.getElementById('cameraModal');
+    
+    function onScanSuccess(decodedText) {
+      try {
+        const info = JSON.parse(decodedText);
         
-        // QR Generation Logic
-        qrForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // 1. Gather Data
-            const data = {
-                id: document.getElementById('studentId').value,
-                name: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                age: document.getElementById('age').value,
-                birthdate: document.getElementById('birthdate').value,
-                gender: document.getElementById('gender').value,
-                nationality: document.getElementById('nationality').value,
-                birthplace: document.getElementById('birthplace').value,
-                contact: document.getElementById('contact').value,
-                address: document.getElementById('address').value,
-                course: document.getElementById('course').value,
-                year: document.getElementById('year').value,
-                section: document.getElementById('section').value,
-                guardian: document.getElementById('guardian').value,
-                guardianContact: document.getElementById('guardianContact').value
-            };
-
-            const jsonString = JSON.stringify(data);
-
-            // 2. Generate QR Code (using Google Charts API or similar for simple implementation)
-            // Note: A robust implementation would use a client-side library like qrcode.js or qrcode.generator
-            // For simplicity and quick demo, let's use a public API if available or a simple library (which is what the original code likely did)
-            
-            // The HTML includes: <script src="https://unpkg.com/html5-qrcode"></script>
-            // For generation, we'll need a QR code generator library. I'll assume the original code had a separate generation library or used one of the included ones.
-            // Since the file didn't include a QR code generation library explicitly, I'll use a placeholder that generates a Data URI for the QR code.
-            
-            // --- Placeholder QR Code Generation Logic (Requires a QR library) ---
-            // If the original file used a separate generation library, it would look like this:
-            try {
-                // Using a common generation library pattern (e.g., qrcode.js if it were loaded)
-                const qrSize = 300;
-                
-                // Since I cannot run a generation library here, I will simulate the output for demonstration.
-                // In a real environment, you'd integrate a library like 'davidshimjs/qrcodejs' or 'davidshimjs/qrcodejs'
-                
-                // For demonstration, use a public API (though less ideal for production due to reliance)
-                const qrApiUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${qrSize}x${qrSize}&chl=${encodeURIComponent(jsonString)}&choe=UTF-8&chld=L|0`;
-                qrImage.src = qrApiUrl;
-
-                // 3. Display Output
-                let infoHtml = `<p class="font-bold mb-1">Generated Student Data:</p>`;
-                for (const [key, value] of Object.entries(data)) {
-                    infoHtml += `<p><span class="font-medium">${key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</span> ${value}</p>`;
-                }
-                studentInfoOutput.innerHTML = infoHtml;
-                
-                outputDiv.classList.remove('hidden');
-                document.getElementById('generate').scrollIntoView({ behavior: 'smooth' });
-
-            } catch (error) {
-                console.error("QR Code Generation Error:", error);
-                Swal.fire({
-                    title: '<i class="fas fa-exclamation-circle" style="color: #ffc107;"></i> Error',
-                    text: 'Could not generate QR code. Ensure your data is valid and the QR library is correctly loaded.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: 'var(--brand-red)'
-                });
-            }
-        });
-
-        // Download Button Logic
-        downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.href = qrImage.src;
-            link.download = `Student_${document.getElementById('studentId').value}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-
-        // Clear Form Logic
-        clearBtn.addEventListener('click', () => {
-            qrForm.reset();
-            outputDiv.classList.add('hidden');
-            Swal.fire({
-              title: 'Cleared!',
-              text: 'The form and output have been cleared.',
-              icon: 'success',
-              confirmButtonText: 'OK',
-              customClass: {
-                  confirmButton: 'swal2-confirm'
-              }
-            });
+        // Create HTML content for SweetAlert with responsive design
+        const isMobile = window.innerWidth <= 768;
+        const studentInfoHtml = `
+          <div style="text-align: left; font-family: 'Poppins', sans-serif;">
+            <div style="display: ${isMobile ? 'block' : 'grid'}; ${isMobile ? '' : 'grid-template-columns: 1fr 1fr;'} gap: ${isMobile ? '10px' : '15px'}; margin-top: ${isMobile ? '15px' : '20px'};">
+              <div style="${isMobile ? 'margin-bottom: 15px;' : ''}">
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Student ID:</strong>${info.studentId}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Full Name:</strong>${info.fullName}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Email:</strong>${info.email}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Age:</strong>${info.age}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Birthdate:</strong>${info.birthdate}</p>
+              </div>
+              <div>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Gender:</strong>${info.gender}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Nationality:</strong>${info.nationality}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Birthplace:</strong>${info.birthplace}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Contact:</strong>${info.contact}</p>
+                <p style="margin: ${isMobile ? '6px 0' : '8px 0'}; font-size: ${isMobile ? '0.9rem' : '1rem'};"><strong style="color: var(--brand-red); display: block; margin-bottom: 2px;">Address:</strong>${info.address}</p>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Show SweetAlert2 with enhanced mobile responsiveness
+        Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #28a745;"></i> QR Scan Successful!',
+          html: studentInfoHtml,
+          icon: 'success',
+          confirmButtonText: 'Close',
+          confirmButtonColor: 'var(--brand-red)',
+          width: isMobile ? '95%' : '600px',
+          padding: isMobile ? '1rem' : '1.5rem',
+          showConfirmButton: true,
+          allowOutsideClick: true,
+          allowEscapeKey: true,
+          backdrop: true,
+          customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            htmlContainer: 'swal2-html-container-custom'
+          }
         });
         
-        // QR Scanning Logic
-        const startScanBtn = document.getElementById('startScanBtn');
-        const uploadScanBtn = document.getElementById('uploadScanBtn');
-        const qrImageUpload = document.getElementById('qrImageUpload');
-        const cameraStatus = document.getElementById('camera-status');
-        const html5QrCode = new Html5Qrcode("qr-reader");
-        let isScanning = false;
-
-        const onScanSuccess = (decodedText, decodedResult) => {
-            if (isScanning) {
-                // Pause scanner and set the flag to prevent multiple scans
-                isScanning = false;
-                html5QrCode.pause().then(() => {
-                    // Stop camera stream only if it wasn't a file scan
-                    if (!window._lastScanWasFile) {
-                        html5QrCode.stop().then(ignore => {
-                            cameraStatus.textContent = "Camera stopped.";
-                            startScanBtn.textContent = 'Start Camera Scan';
-                            startScanBtn.classList.remove('bg-red-500', 'border-red-500', 'hover:bg-red-600', 'btn-brand-primary');
-                            startScanBtn.classList.add('btn-brand-primary'); // back to default style
-                        }).catch(err => {
-                            console.warn("Camera stop failed:", err);
-                        });
-                    }
-                    
-                    try {
-                        const studentData = JSON.parse(decodedText);
-                        
-                        // Check for the minimum required fields to confirm it's student data
-                        if (studentData.id && studentData.name && studentData.course) {
-                            
-                            // 1. Format the data for display in SweetAlert
-                            let detailsHtml = `
-                                <div class="text-left leading-relaxed">
-                                    <p><span class="font-bold">ID:</span> ${studentData.id}</p>
-                                    <p><span class="font-bold">Name:</span> ${studentData.name}</p>
-                                    <p><span class="font-bold">Course:</span> ${studentData.course}</p>
-                                    <p><span class="font-bold">Year/Section:</span> ${studentData.year} - ${studentData.section}</p>
-                                    <p><span class="font-bold">Email:</span> ${studentData.email}</p>
-                                    <p><span class="font-bold">Contact:</span> ${studentData.contact}</p>
-                                    <p><span class="font-bold">Address:</span> ${studentData.address}</p>
-                                </div>
-                            `;
-
-                            // 2. Show the result using SweetAlert
-                            Swal.fire({
-                                title: '<i class="fas fa-user-check" style="color: #10B981;"></i> Student Found!', // Tailwind green color
-                                html: detailsHtml,
-                                icon: 'success',
-                                confirmButtonText: 'Verify Another',
-                                customClass: {
-                                    confirmButton: 'swal2-confirm'
-                                },
-                                didClose: () => {
-                                    // Resume scan if not stopped
-                                    if (!window._lastScanWasFile) {
-                                        html5QrCode.resume();
-                                        isScanning = true;
-                                    }
-                                }
-                            });
-                        } else {
-                            throw new Error("Invalid student data structure.");
-                        }
-
-                    } catch (e) {
-                        // Handle JSON parsing error or invalid structure
-                        Swal.fire({
-                            title: '<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> Invalid QR Code',
-                            text: 'The scanned code does not contain valid student information data.',
-                            icon: 'warning',
-                            confirmButtonText: 'Continue Scanning',
-                            customClass: {
-                                confirmButton: 'swal2-confirm'
-                            },
-                            didClose: () => {
-                                if (!window._lastScanWasFile) {
-                                    html5QrCode.resume();
-                                    isScanning = true;
-                                }
-                            }
-                        });
-                    }
-
-                }).catch(err => {
-                    console.error("Pause failed:", err);
-                    // Just stop it if pause failed
-                    html5QrCode.stop().then(ignore => {
-                        cameraStatus.textContent = "Camera stopped due to error.";
-                        startScanBtn.textContent = 'Start Camera Scan';
-                        startScanBtn.classList.remove('bg-red-500', 'border-red-500', 'hover:bg-red-600', 'btn-brand-primary');
-                        startScanBtn.classList.add('btn-brand-primary');
-                    }).catch(err => { console.warn("Stop failed:", err); });
-                });
-            }
-        };
-
-        const config = { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true };
-        
-        startScanBtn.addEventListener('click', () => {
-            if (isScanning) {
-                // Stop scanning
-                html5QrCode.stop().then(ignore => {
-                    isScanning = false;
-                    cameraStatus.textContent = "Camera stopped.";
-                    startScanBtn.textContent = 'Start Camera Scan';
-                    startScanBtn.classList.remove('bg-red-500', 'border-red-500', 'hover:bg-red-600');
-                    startScanBtn.classList.add('btn-brand-primary');
-                }).catch(err => {
-                    console.error("Failed to stop camera:", err);
-                    cameraStatus.textContent = "Error stopping camera.";
-                });
-            } else {
-                // Start scanning
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess
-                ).then(() => {
-                    isScanning = true;
-                    cameraStatus.textContent = "Scanning in progress...";
-                    startScanBtn.textContent = 'Stop Camera Scan';
-                    startScanBtn.classList.remove('btn-brand-primary');
-                    // Custom style for the Stop button (Red)
-                    startScanBtn.classList.add('bg-red-500', 'border-red-500', 'hover:bg-red-600', 'text-white', 'rounded-lg', 'font-medium');
-                }).catch(err => {
-                    isScanning = false;
-                    cameraStatus.textContent = "Error: Camera access denied or not available.";
-                    Swal.fire({
-                        title: '<i class="fas fa-camera-alt" style="color: #ffc107;"></i> Camera Error',
-                        text: 'Could not start the camera. Please ensure your device has a camera and you have granted access.',
-                        icon: 'warning',
-                        confirmButtonText: 'Try Again',
-                        customClass: {
-                            confirmButton: 'swal2-confirm'
-                        }
-                    });
-                    console.error("Camera start failed:", err);
-                });
-            }
+        // Show green modal overlay ONLY for camera scans
+        if (!window._lastScanWasFile) {
+          cameraModal.classList.remove('d-none');
+          setTimeout(() => cameraModal.classList.add('d-none'), 1500);
+        }
+      } catch {
+        // Show error SweetAlert
+        Swal.fire({
+          title: '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Invalid QR Code',
+          text: 'Please scan a valid student QR code.',
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          confirmButtonColor: 'var(--brand-red)'
         });
+      }
+    }
 
-        // Upload Button Logic
-        uploadScanBtn.addEventListener('click', () => {
-          qrImageUpload.click();
-        });
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    let isScannerRunning = false;
 
-        // Scan from file logic
-        qrImageUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            // mark that this scan is from file so we don't show camera check
-            window._lastScanWasFile = true;
+    function computeQrBox() {
+      const container = document.getElementById('qr-reader');
+      const containerWidth = container ? container.clientWidth : window.innerWidth;
+      const size = Math.max(180, Math.min(320, Math.floor(containerWidth * 0.8)));
+      return { width: size, height: size };
+    }
 
-            const reader = new FileReader();
-            reader.onload = function() {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.getElementById("qrCanvas");
-                    const ctx = canvas.getContext("2d");
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+    async function startScanner() {
+      const config = { fps: 10, qrbox: computeQrBox() };
+      try {
+        const devices = await Html5Qrcode.getCameras();
+        if (devices && devices.length) {
+          await html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess);
+          isScannerRunning = true;
+        }
+      } catch (err) {
+        console.error('Camera error:', err);
+      }
+    }
 
-                    if (code) {
-                        onScanSuccess(code.data);
-                        // reset flag shortly after processing file
-                        setTimeout(() => { window._lastScanWasFile = false; }, 500);
-                    } else {
-                        // Show warning SweetAlert
-                        Swal.fire({
-                            title: '<i class="fas fa-search" style="color: #ffc107;"></i> No QR Code Found',
-                            text: 'No QR code detected in the uploaded image. Please try with a different image or ensure the QR code is clearly visible.',
-                            icon: 'warning',
-                            confirmButtonText: 'Try Again',
-                            customClass: {
-                                confirmButton: 'swal2-confirm'
-                            }
-                        });
-                    }
-                };
-                img.src = reader.result;
-            };
-            reader.readAsDataURL(file);
-        });
+    async function restartScannerOnResize() {
+      if (!isScannerRunning) return;
+      try {
+        await html5QrCode.stop();
+        isScannerRunning = false;
+        await startScanner();
+      } catch (err) {
+        console.error('Restart error:', err);
+      }
+    }
 
+    let _resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(restartScannerOnResize, 200);
     });
+
+    startScanner();
+
+    // Scan from uploaded file
+    function scanFromFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      // mark that this scan is from file so we don't show camera check
+      window._lastScanWasFile = true;
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.getElementById("qrCanvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+          if (code) {
+            onScanSuccess(code.data);
+            // reset flag shortly after processing file
+            setTimeout(() => { window._lastScanWasFile = false; }, 500);
+          } else {
+            // Show warning SweetAlert
+            Swal.fire({
+              title: '<i class="fas fa-search" style="color: #ffc107;"></i> No QR Code Found',
+              text: 'No QR code detected in the uploaded image. Please try with a different image or ensure the QR code is clearly visible.',
+              icon: 'warning',
+              confirmButtonText: 'Try Again',
+              confirmButtonColor: 'var(--brand-red)'
+            });
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 </html>
